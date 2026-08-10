@@ -8,7 +8,6 @@ public class SearchMovie {
     private String query;
     private int currentPage;
     private SearchResponse response;
-    private static final int MAX_PAGES = 10;
 
 
      // constructor
@@ -39,8 +38,7 @@ public class SearchMovie {
     }
 
     public int getMaxPages() {
-        int totalPages = response.getTotalPages();
-        return Math.min(totalPages, MAX_PAGES);
+        return response.getTotalPages();
     }
 
     public boolean canGoNext() {

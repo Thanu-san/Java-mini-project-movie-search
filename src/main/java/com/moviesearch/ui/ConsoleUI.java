@@ -94,11 +94,11 @@ public class ConsoleUI {
 
 
     public void showError(String message) {
-        System.out.println("❌ " + message);
+        System.out.println(message);
     }
 
     public void showSuccess(String message) {
-        System.out.println("✅ " + message);
+        System.out.println(message);
     }
 
 

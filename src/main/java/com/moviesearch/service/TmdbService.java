@@ -34,8 +34,8 @@ public class TmdbService {
                 throw new ApiException("Movie title cannot be empty");
             }
 
-            if (page < 1 || page > 10) {
-                throw new ApiException("Page number must be between 1 and 10");
+            if (page < 1 || page > 500) {
+                throw new ApiException("Page number must be between 1 and 500");
             }
 
             // build the URL
