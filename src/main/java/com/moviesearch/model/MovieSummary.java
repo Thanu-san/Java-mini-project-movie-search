@@ -2,7 +2,7 @@ package com.moviesearch.model;
 
 import com.google.gson.annotations.SerializedName;
 
-// Represents a single movie in search results to display
+// represents a single movie in search results to display
 
 public class MovieSummary {
 

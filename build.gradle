@@ -18,6 +18,9 @@ dependencies {
     // JSON parsing library
     implementation 'com.google.code.gson:gson:2.10.1'
 
+    // Text table formatter for pretty tables
+    implementation 'org.nocrala.tools.texttablefmt:text-table-formatter:1.2.4'
+
     // Testing
     testImplementation platform('org.junit:junit-bom:6.0.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'

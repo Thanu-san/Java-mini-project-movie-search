@@ -149,7 +149,7 @@ public class TmdbService {
             }
 
             String url = BASE_URL + "/movie/" + movieId
-                    + "append_to_response=videos,credits";
+                    + "?append_to_response=videos,credits";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -246,7 +246,8 @@ public class TmdbService {
             return null;
 
         } catch (Exception e) {
-            return null;  // If extraction fails, just return null
+            // if it fails , will return null
+            return null;
         }
     }
 
@@ -286,7 +287,7 @@ public class TmdbService {
 
             com.google.gson.JsonArray results = json.getAsJsonArray("results");
 
-            if (results == null || results.size() == 0) {
+            if (results == null || results.isEmpty()) {
                 return null;
             }
 
@@ -310,7 +311,7 @@ public class TmdbService {
         }
     }
 
-    // Fetch and attach trailer URLs to all movies in search results
+    // fetch and attach trailer URLs to all movies in search results
     public void attachTrailersToMovies(SearchResponse response) {
         if (response == null || response.getResults() == null) {
             return;
@@ -325,6 +326,65 @@ public class TmdbService {
         }
 
         System.out.println(" Done!\n");
+    }
+
+    // extract director and cast from movie JSON response
+    public void attachCreditsToMovieDetail(MovieDetail detail, String jsonResponse) {
+        try {
+            Gson gson = new Gson();
+            JsonObject json = gson.fromJson(jsonResponse, JsonObject.class);
+
+            if (!json.has("credits")) {
+                return;
+            }
+
+            JsonObject creditsJson = json.getAsJsonObject("credits");
+
+            // extract cast
+            if (creditsJson.has("cast")) {
+                JsonArray castArray = creditsJson.getAsJsonArray("cast");
+                java.util.List<MovieDetail.Cast> castList = new java.util.ArrayList<>();
+
+                for (int i = 0; i < Math.min(castArray.size(), 10); i++) {
+                    JsonObject castObj = castArray.get(i).getAsJsonObject();
+                    String name = castObj.has("name") ? castObj.get("name").getAsString() : "";
+                    String character = castObj.has("character") ? castObj.get("character").getAsString() : "";
+
+                    castList.add(new MovieDetail.Cast(0, name, character));
+                }
+
+                if (!castList.isEmpty()) {
+                    if (detail.getCredits() == null) {
+                        detail.setCredits(new MovieDetail.Credits());
+                    }
+                    detail.getCredits().setCast(castList);
+                }
+            }
+
+            // extract crew (director)
+            if (creditsJson.has("crew")) {
+                JsonArray crewArray = creditsJson.getAsJsonArray("crew");
+                java.util.List<MovieDetail.Crew> crewList = new java.util.ArrayList<>();
+
+                for (int i = 0; i < crewArray.size(); i++) {
+                    JsonObject crewObj = crewArray.get(i).getAsJsonObject();
+                    String name = crewObj.has("name") ? crewObj.get("name").getAsString() : "";
+                    String job = crewObj.has("job") ? crewObj.get("job").getAsString() : "";
+
+                    crewList.add(new MovieDetail.Crew(0, name, job));
+                }
+
+                if (!crewList.isEmpty()) {
+                    if (detail.getCredits() == null) {
+                        detail.setCredits(new MovieDetail.Credits());
+                    }
+                    detail.getCredits().setCrew(crewList);
+                }
+            }
+
+        } catch (Exception e) {
+            // if parsing fails, just skip credits
+        }
     }
 
 }

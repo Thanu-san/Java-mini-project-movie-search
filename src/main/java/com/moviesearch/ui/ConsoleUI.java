@@ -3,33 +3,27 @@ package com.moviesearch.ui;
 import com.moviesearch.model.MovieDetail;
 import com.moviesearch.model.MovieSummary;
 import com.moviesearch.model.SearchResponse;
+import org.nocrala.tools.texttablefmt.BorderStyle;
+import org.nocrala.tools.texttablefmt.Table;
+
 import java.util.List;
 import java.util.Scanner;
 
-/**
- * Handles all console display and user interface.
- * Responsible for: tables, menus, messages, input handling.
- */
+// console display and user interface
 public class ConsoleUI {
 
-    private static final int TABLE_WIDTH = 150;
-    private static final String SEPARATOR = "-";
     private static final String MENU_PROMPT = "Choose an option: ";
     private static final String PAGE_PROMPT_BASE = "Enter page number (1-";
     private static final String MOVIE_ID_PROMPT = "\nEnter movie ID: ";
 
     private final Scanner scanner;
 
-    /**
-     * Constructor: Initialize console UI with a shared Scanner
-     */
+   // console UI with a shared Scanner
     public ConsoleUI() {
         this.scanner = new Scanner(System.in);
     }
 
-    /**
-     * Display search results as a formatted table
-     */
+    // display search results
     public void displayMovieTable(SearchResponse response, int currentPage) {
         if (response == null) {
             showError("Response is null");
@@ -43,67 +37,48 @@ public class ConsoleUI {
 
         List<MovieSummary> movies = response.getResults();
 
-        // Print header
-        printTableHeader();
+        // create table with 5 columns using ASCII box borders
+        Table table = new Table(5, BorderStyle.UNICODE_BOX_WIDE);
 
-        // Print each movie
+        // add headers
+        table.addCell("ID");
+        table.addCell("Title");
+        table.addCell("Release");
+        table.addCell("Rating");
+        table.addCell("Trailer");
+
+        // add each movie row
         for (MovieSummary movie : movies) {
-            printTableRow(movie);
+            table.addCell(String.valueOf(movie.getId()));
+            table.addCell(truncate(movie.getTitle(), 30));
+            table.addCell(movie.getReleaseDate() != null ? movie.getReleaseDate() : "N/A");
+            table.addCell(String.format("%.1f", movie.getRating()));
+
+            // show YouTube URL or "N/A"
+            String trailer = "N/A";
+            if (movie.getTrailerUrl() != null && !movie.getTrailerUrl().isEmpty()) {
+                trailer = truncate(movie.getTrailerUrl(), 45);
+            }
+            table.addCell(trailer);
         }
 
-        // Print separator
-        printSeparator();
+        // print table
+        System.out.println();
+        System.out.println(table.render());
 
-        // Print pagination info
+        // print pagination info
         printPaginationInfo(response, currentPage);
     }
 
-    /**
-     * Print the table header row
-     */
-    private void printTableHeader() {
-        printSeparator();
-        System.out.printf("%-8s %-30s %-14s %-9s %-50s%n",
-                "ID", "Title", "Release", "Rating", "Trailer");
-        printSeparator();
-    }
 
-    /**
-     * Print one movie row
-     */
-    private void printTableRow(MovieSummary movie) {
-        String title = truncate(movie.getTitle(), 30);
-        String release = movie.getReleaseDate() != null ? movie.getReleaseDate() : "N/A";
-        String rating = String.format("%.1f", movie.getRating());
-
-        // Show "YouTube" link or "N/A"
-        String trailer = "N/A";
-        if (movie.getTrailerUrl() != null && !movie.getTrailerUrl().isEmpty()) {
-            trailer = movie.getTrailerUrl();
-        }
-
-        System.out.printf("%-8d %-30s %-14s %-9s %-50s%n",
-                movie.getId(), title, release, rating, trailer);
-    }
-
-    /**
-     * Print a line separator
-     */
-    private void printSeparator() {
-        System.out.println(SEPARATOR.repeat(TABLE_WIDTH));
-    }
-
-    /**
-     * Print pagination information
-     */
+    // pagination format
     private void printPaginationInfo(SearchResponse response, int currentPage) {
-        System.out.printf("\nPage %d of %d | Total Results: %d\n\n",
+        System.out.printf("Page %d of %d | Total Results: %d\n\n",
                 currentPage, response.getTotalPages(), response.getTotalResults());
     }
 
-    /**
-     * Truncate text to maximum length and add ellipsis
-     */
+
+    // truncate text to maximum length and add ellipsis
     private String truncate(String text, int maxLength) {
         if (text == null) return "N/A";
         if (text.length() <= maxLength) {
@@ -112,30 +87,22 @@ public class ConsoleUI {
         return text.substring(0, maxLength - 3) + "...";
     }
 
-    /**
-     * Display a simple message
-     */
+
     public void showMessage(String message) {
         System.out.println(message);
     }
 
-    /**
-     * Display an error message with prefix
-     */
+
     public void showError(String message) {
-        System.out.println( message);
+        System.out.println("❌ " + message);
     }
 
-    /**
-     * Display a success message with prefix
-     */
     public void showSuccess(String message) {
-        System.out.println( message);
+        System.out.println("✅ " + message);
     }
 
-    /**
-     * Display the navigation menu options
-     */
+
+    // display menu option
     public void displayMenu() {
         System.out.println("\n[n]  Next Page");
         System.out.println("[p]  Previous Page");
@@ -145,20 +112,17 @@ public class ConsoleUI {
         System.out.println("[e]  Exit\n");
     }
 
-    /**
-     * Read user input from console with a prompt
-     */
+
     public String getUserInput(String prompt) {
         System.out.print(prompt);
         return scanner.nextLine().trim();
     }
 
-    /**
-     * Ask user for a valid page number within the specified range
-     */
+
+    // valid page number
     public int getPageNumber(int maxPages) {
         while (true) {
-            String input = getUserInput(PAGE_PROMPT_BASE + maxPages + "): ");
+            String input = getUserInput("Enter page number (1-" + maxPages + "): ");
 
             try {
                 int page = Integer.parseInt(input);
@@ -167,7 +131,6 @@ public class ConsoleUI {
                     showError("Page number must be between 1 and " + maxPages);
                     continue;
                 }
-
                 return page;
 
             } catch (NumberFormatException e) {
@@ -176,60 +139,69 @@ public class ConsoleUI {
         }
     }
 
-    /**
-     * Display detailed information about a movie
-     */
+
+    // display detailed information about a movie in table format
     public void displayMovieDetail(MovieDetail detail) {
-        System.out.println("\n========== MOVIE DETAIL ==========\n");
+        System.out.println();
 
-        System.out.printf("ID          : %d%n", detail.getId());
-        System.out.printf("Title       : %s%n", detail.getTitle());
-        System.out.printf("Release     : %s%n",
-                detail.getReleaseDate() != null ? detail.getReleaseDate() : "N/A");
-        System.out.printf("Rating      : %.1f%n", detail.getRating());
-        System.out.printf("Runtime     : %s%n",
-                detail.getRuntime() > 0 ? detail.getRuntime() + " minutes" : "N/A");
+        // create a table for movie details
+        Table detailTable = new Table(2, BorderStyle.UNICODE_BOX);
 
-        // Genres
+        // add detail rows
+        detailTable.addCell("ID");
+        detailTable.addCell(String.valueOf(detail.getId()));
+
+        detailTable.addCell("Title");
+        detailTable.addCell(detail.getTitle());
+
+        detailTable.addCell("Release");
+        detailTable.addCell(detail.getReleaseDate() != null ? detail.getReleaseDate() : "N/A");
+
+        detailTable.addCell("Rating");
+        detailTable.addCell(String.format("%.1f/10", detail.getRating()));
+
+        detailTable.addCell("Runtime");
+        detailTable.addCell(detail.getRuntime() > 0 ? detail.getRuntime() + " minutes" : "N/A");
+
+        String genres = "N/A";
         if (detail.getGenres() != null && !detail.getGenres().isEmpty()) {
-            String genres = detail.getGenres().stream()
+            genres = detail.getGenres().stream()
                     .map(MovieDetail.Genre::getName)
                     .reduce((a, b) -> a + ", " + b)
                     .orElse("N/A");
-            System.out.printf("Genres      : %s%n", genres);
-        } else {
-            System.out.println("Genres      : N/A");
         }
 
-        // Director
+        detailTable.addCell("Genres");
+        detailTable.addCell(genres);
+
         String director = getDirector(detail);
-        System.out.printf("Director    : %s%n", director);
+        detailTable.addCell("Director");
+        detailTable.addCell(director);
 
-        // Cast
         String cast = getTopCast(detail, 5);
-        System.out.printf("Cast        : %s%n", cast);
+        detailTable.addCell("Cast");
+        detailTable.addCell(cast);
 
-        // Overview
-        String overview = truncate(detail.getOverview(), 100);
-        System.out.printf("Overview    : %s%n", overview);
-
-        // Trailer
         String trailer = detail.getTrailerUrl() != null ? detail.getTrailerUrl() : "N/A";
-        System.out.printf("Trailer     : %s%n", trailer);
+        detailTable.addCell("Trailer");
+        detailTable.addCell(truncate(trailer, 50));
 
-        System.out.println("\n==================================\n");
+        String overview = truncate(detail.getOverview(), 80);
+        detailTable.addCell("Overview");
+        detailTable.addCell(overview);
+
+        System.out.println(detailTable.render());
+        System.out.println();
 
         getUserInput("Press Enter to return.");
     }
 
-    /**
-     * Extract the director name from movie credits
-     */
+
+    // extract the director name from movie credits
     private String getDirector(MovieDetail detail) {
         if (detail.getCredits() == null || detail.getCredits().getCrew() == null) {
             return "N/A";
         }
-
         return detail.getCredits().getCrew().stream()
                 .filter(crew -> "Director".equals(crew.getJob()))
                 .map(MovieDetail.Crew::getName)
@@ -237,14 +209,12 @@ public class ConsoleUI {
                 .orElse("N/A");
     }
 
-    /**
-     * Get the top N cast members as a comma-separated string
-     */
+
+    // get the top N cast members as a comma-separated string
     private String getTopCast(MovieDetail detail, int count) {
         if (detail.getCredits() == null || detail.getCredits().getCast() == null) {
             return "N/A";
         }
-
         return detail.getCredits().getCast().stream()
                 .limit(count)
                 .map(MovieDetail.Cast::getName)
@@ -252,9 +222,6 @@ public class ConsoleUI {
                 .orElse("N/A");
     }
 
-    /**
-     * Close the scanner resource
-     */
     public void close() {
         if (scanner != null) {
             scanner.close();

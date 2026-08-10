@@ -130,11 +130,16 @@ public class MovieDetail {
         private List<Cast> cast;
         private List<Crew> crew;
 
-        public Credits() {}
+        // Constructor 1
+        public Credits() {
+            this.cast = new java.util.ArrayList<>();
+            this.crew = new java.util.ArrayList<>();
+        }
 
+        // Constructor 2
         public Credits(List<Cast> cast, List<Crew> crew) {
-            this.cast = cast;
-            this.crew = crew;
+            this.cast = cast != null ? cast : new java.util.ArrayList<>();
+            this.crew = crew != null ? crew : new java.util.ArrayList<>();
         }
 
         public List<Cast> getCast() {

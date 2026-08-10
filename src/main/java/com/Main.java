@@ -8,13 +8,15 @@ import com.moviesearch.model.SearchMovie;
 import com.moviesearch.service.TmdbService;
 import com.moviesearch.ui.ConsoleUI;
 
+import java.nio.charset.StandardCharsets;
+
 public class Main {
 
     private static final TmdbService tmdbService;
     private static final ConsoleUI ui = new ConsoleUI();
     private static SearchMovie session;
 
-    // Static initialization
+    // static initialization
     static {
         try {
             ApiConfig config = new ApiConfig();
@@ -28,17 +30,22 @@ public class Main {
     }
 
     public static void main(String[] args) {
+
+        try {
+            System.setOut(new java.io.PrintStream(System.out, true, StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            // Ignore
+        }
         try {
             System.out.println("""
-                     ___      ___     ______  ___      ___  __     _______       ________  _______       __        _______    ______    __    __    __    __  \s
-                    |"  \\    /"  |   /    " \\|"  \\    /"  ||" \\   /"     "|     /"       )/"     "|     /""\\      /"      \\  /" _  "\\  /" |  | "\\  /" |  | "\\ \s
-                     \\   \\  //   |  // ____  \\\\   \\  //  / ||  | (: ______)    (:   \\___/(: ______)    /    \\    |:        |(: ( \\___)(:  (__)  :)(:  (__)  :)\s
-                     /\\\\  \\/.    | /  /    ) :)\\\\  \\/. ./  |:  |  \\/    |       \\___  \\   \\/    |     /' /\\  \\   |_____/   ) \\/ \\      \\/      \\/  \\/      \\/ \s
-                    |: \\.        |(: (____/ //  \\.    //   |.  |  // ___)_       __/  \\\\  // ___)_   //  __'  \\   //      /  //  \\ _   //  __  \\\\  //  __  \\\\ \s
-                    |.  \\    /:  | \\        /    \\\\   /    /\\  |\\(:      "|     /" \\   :)(:      "| /   /  \\\\  \\ |:  __   \\ (:   _) \\ (:  (  )  :)(:  (  )  :)\s
-                    |___|\\__/|___|  \\"_____/      \\__/    (__\\_|_)\\_______)    (_______/  \\_______)(___/    \\___)|__|  \\___) \\_______) \\__|  |__/  \\__|  |__/ \s
-                    
-        """);
+                     ____    ____                  _           ______                                __      \s
+                    |_   \\  /   _|                (_)        .' ____ \\                              [  |     \s
+                      |   \\/   |   .--.   _   __  __  .---.  | (___ \\_| .---.  ,--.   _ .--.  .---.  | |--.  \s
+                      | |\\  /| | / .'`\\ \\[ \\ [  ][  |/ /__\\\\  _.____`. / /__\\\\`'_\\ : [ `/'`\\]/ /'`\\] | .-. | \s
+                     _| |_\\/_| |_| \\__. | \\ \\/ /  | || \\__., | \\____) || \\__.,// | |, | |    | \\__.  | | | | \s
+                    |_____||_____|'.__.'   \\__/  [___]'.__.'  \\______.' '.__.'\\'-;__/[___]   '.___.'[___]|__]\s
+                   \s
+       \s""");
 
             mainMenu();
 
@@ -48,12 +55,10 @@ public class Main {
         }
     }
 
-    /**
-     * Main menu: Ask user for movie title
-     */
+    // main menu
     private static void mainMenu() {
         while (true) {
-            String query = ui.getUserInput("[<+>] Enter movie title (or 'exit' to quit): ");
+            String query = ui.getUserInput("[<+>] Enter movie title (or input 'exit' to quit): ");
 
             if (query.equalsIgnoreCase("exit")) {
                 ui.showMessage("Goodbye !! I love you 3000 ");
@@ -64,20 +69,16 @@ public class Main {
                 ui.showError("Please enter a movie title.");
                 continue;
             }
-
-            // Search and show results
             searchAndDisplay(query);
         }
     }
 
-    /**
-     * Search for movies and display results
-     */
+    // search for movies and display results
     private static void searchAndDisplay(String query) {
         try {
             ui.showMessage("Searching for '" + query + "'...\n");
 
-            // Fetch first page
+            // fetch for the first page
             String jsonResponse = tmdbService.searchMovies(query, 1);
             SearchResponse response = tmdbService.parseSearchResponse(jsonResponse);
 
@@ -86,15 +87,12 @@ public class Main {
                 return;
             }
 
-            // Fetch trailers for all movies on this page
+            // fetch trailers for all movies on this page
             tmdbService.attachTrailersToMovies(response);
-
-            // Create session
             session = new SearchMovie(query, response);
 
-            // Show results and pagination menu
+            // show the results and pagination menu
             resultsMenu();
-
         } catch (ApiException e) {
             ui.showError(e.getMessage());
         }
@@ -103,10 +101,8 @@ public class Main {
     private static void resultsMenu() {
         while (true) {
             try {
-                // Display current page
                 ui.displayMovieTable(session.getResponse(), session.getCurrentPage());
 
-                // Display menu
                 ui.displayMenu();
 
                 String option = ui.getUserInput("Choose an option: ").toLowerCase().trim();
@@ -193,8 +189,17 @@ public class Main {
 
             ui.showMessage("Fetching movie details...\n");
 
+            // fetch detail info
             String jsonResponse = tmdbService.getMovieDetail(movieId);
             MovieDetail detail = tmdbService.parseMovieDetail(jsonResponse);
+
+            // fetch and attach trailer
+            String trailerUrl = tmdbService.getMovieTrailer(movieId);
+            detail.setTrailerUrl(trailerUrl);
+
+            // manually parse and attach credits from JSON
+            tmdbService.attachCreditsToMovieDetail(detail, jsonResponse);
+
             ui.displayMovieDetail(detail);
 
         } catch (NumberFormatException e) {
