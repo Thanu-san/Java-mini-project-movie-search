@@ -120,17 +120,17 @@ public class ConsoleUI {
     }
 
     /**
-     * Display an error message with ❌ prefix
+     * Display an error message with prefix
      */
     public void showError(String message) {
-        System.out.println("❌ " + message);
+        System.out.println( message);
     }
 
     /**
-     * Display a success message with ✅ prefix
+     * Display a success message with prefix
      */
     public void showSuccess(String message) {
-        System.out.println("✅ " + message);
+        System.out.println( message);
     }
 
     /**

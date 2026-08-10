@@ -22,7 +22,7 @@ public class ApiConfig {
 
             if (input == null) {
                 throw new RuntimeException(
-                        "❌ config.properties not found!\n" +
+                        " config.properties not found!\n" +
                                 "   1. Copy config.properties.example to config.properties\n" +
                                 "   2. Add your TMDB API token to config.properties\n" +
                                 "   3. Do NOT commit config.properties to Git"
@@ -34,7 +34,7 @@ public class ApiConfig {
 
             if (token == null || token.isEmpty()) {
                 throw new RuntimeException(
-                        "❌ TMDB_ACCESS_TOKEN not found in config.properties!\n" +
+                        " TMDB_ACCESS_TOKEN not found in config.properties!\n" +
                                 "   Add: TMDB_ACCESS_TOKEN=your_token_here"
                 );
             }
@@ -42,7 +42,7 @@ public class ApiConfig {
             return token;
 
         } catch (IOException e) {
-            throw new RuntimeException("❌ Failed to read config.properties: " + e.getMessage());
+            throw new RuntimeException(" Failed to read config.properties: " + e.getMessage());
         }
     }
 

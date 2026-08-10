@@ -29,13 +29,22 @@ public class Main {
 
     public static void main(String[] args) {
         try {
-            System.out.println(" TMDB Movie Search System\n");
+            System.out.println("""
+                     ___      ___     ______  ___      ___  __     _______       ________  _______       __        _______    ______    __    __    __    __  \s
+                    |"  \\    /"  |   /    " \\|"  \\    /"  ||" \\   /"     "|     /"       )/"     "|     /""\\      /"      \\  /" _  "\\  /" |  | "\\  /" |  | "\\ \s
+                     \\   \\  //   |  // ____  \\\\   \\  //  / ||  | (: ______)    (:   \\___/(: ______)    /    \\    |:        |(: ( \\___)(:  (__)  :)(:  (__)  :)\s
+                     /\\\\  \\/.    | /  /    ) :)\\\\  \\/. ./  |:  |  \\/    |       \\___  \\   \\/    |     /' /\\  \\   |_____/   ) \\/ \\      \\/      \\/  \\/      \\/ \s
+                    |: \\.        |(: (____/ //  \\.    //   |.  |  // ___)_       __/  \\\\  // ___)_   //  __'  \\   //      /  //  \\ _   //  __  \\\\  //  __  \\\\ \s
+                    |.  \\    /:  | \\        /    \\\\   /    /\\  |\\(:      "|     /" \\   :)(:      "| /   /  \\\\  \\ |:  __   \\ (:   _) \\ (:  (  )  :)(:  (  )  :)\s
+                    |___|\\__/|___|  \\"_____/      \\__/    (__\\_|_)\\_______)    (_______/  \\_______)(___/    \\___)|__|  \\___) \\_______) \\__|  |__/  \\__|  |__/ \s
+                    
+        """);
+
             mainMenu();
+
         } catch (RuntimeException e) {
             ui.showError("Unexpected error: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            ui.close();  // Close the Scanner resource
         }
     }
 
@@ -44,10 +53,10 @@ public class Main {
      */
     private static void mainMenu() {
         while (true) {
-            String query = ui.getUserInput("[-] Enter movie title (or 'exit' to quit): ");
+            String query = ui.getUserInput("[<+>] Enter movie title (or 'exit' to quit): ");
 
             if (query.equalsIgnoreCase("exit")) {
-                ui.showMessage("Goodbye!");
+                ui.showMessage("Goodbye !! I love you 3000 ");
                 System.exit(0);
             }
 
@@ -91,9 +100,6 @@ public class Main {
         }
     }
 
-    /**
-     * Results menu: Navigation and options
-     */
     private static void resultsMenu() {
         while (true) {
             try {
@@ -111,23 +117,21 @@ public class Main {
                     case "g" -> handleGoToPage();
                     case "md" -> handleMovieDetail();
                     case "b" -> {
-                        return; // Back to main menu
+                        return;
                     }
                     case "e" -> {
-                        ui.showMessage("Goodbye! 👋");
+                        ui.showMessage("Goodbye! May the force be with you !");
                         System.exit(0);
                     }
                     default -> ui.showError("Invalid option. Please try again.");
                 }
             } catch (Exception e) {
-                ui.showError("An error occurred: " + e.getMessage());
+                ui.showError("An error occurred !!!! : " + e.getMessage());
             }
         }
     }
 
-    /**
-     * Handle next page
-     */
+    // handle next page error
     private static void handleNextPage() {
         if (!session.canGoNext()) {
             ui.showMessage("You are already on the last page.\n");
@@ -138,9 +142,7 @@ public class Main {
         fetchAndUpdatePage();
     }
 
-    /**
-     * Handle previous page
-     */
+    // handle previous page error
     private static void handlePreviousPage() {
         if (!session.canGoPrevious()) {
             ui.showMessage("You are already on the first page.\n");
@@ -151,9 +153,7 @@ public class Main {
         fetchAndUpdatePage();
     }
 
-    /**
-     * Handle go to page
-     */
+    // handle for go to the page
     private static void handleGoToPage() {
         int maxPages = session.getMaxPages();
         int pageNumber = ui.getPageNumber(maxPages);
@@ -162,9 +162,7 @@ public class Main {
         fetchAndUpdatePage();
     }
 
-    /**
-     * Fetch and update page results
-     */
+    // fetching Api to the page
     private static void fetchAndUpdatePage() {
         try {
             ui.showMessage("Fetching page " + session.getCurrentPage() + "...\n");
@@ -175,21 +173,18 @@ public class Main {
             );
             SearchResponse response = tmdbService.parseSearchResponse(jsonResponse);
 
-            // Fetch trailers for all movies on this page
+            // fetch trailers for all the movies
             tmdbService.attachTrailersToMovies(response);
 
             session.setResponse(response);
 
         } catch (ApiException e) {
             ui.showError(e.getMessage());
-            // Reset to previous page on error
             session.goPrevious();
         }
     }
 
-    /**
-     * Handle movie detail request
-     */
+    // handle for movie detail
     private static void handleMovieDetail() {
         String input = ui.getUserInput("\nEnter movie ID: ");
 
@@ -200,7 +195,6 @@ public class Main {
 
             String jsonResponse = tmdbService.getMovieDetail(movieId);
             MovieDetail detail = tmdbService.parseMovieDetail(jsonResponse);
-
             ui.displayMovieDetail(detail);
 
         } catch (NumberFormatException e) {

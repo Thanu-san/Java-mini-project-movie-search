@@ -313,11 +313,10 @@ public class TmdbService {
             if (response.statusCode() == 200) {
                 return extractTrailerFromVideos(response.body());
             }
-
             return null;
 
         } catch (Exception e) {
-            // If trailer fetch fails, just return null (not critical)
+            // if it fails, return null
             return null;
         }
     }
@@ -336,7 +335,7 @@ public class TmdbService {
                 return null;
             }
 
-            // Look for YouTube trailer
+            // search for YouTube trailer
             for (int i = 0; i < results.size(); i++) {
                 com.google.gson.JsonObject video = results.get(i).getAsJsonObject();
 
@@ -367,7 +366,7 @@ public class TmdbService {
             return;
         }
 
-        System.out.print("⏳ Fetching trailers");
+        System.out.print(" Fetching trailers");
 
         for (MovieSummary movie : response.getResults()) {
             System.out.print(".");  // Progress indicator
