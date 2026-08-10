@@ -3,9 +3,8 @@ package com.moviesearch.model;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
-/**
- * Represents detailed information about a single movie
- */
+// represents detailed information about a single movie
+
 public class MovieDetail {
 
     private int id;
@@ -21,11 +20,9 @@ public class MovieDetail {
     private int runtime;  // in minutes
     private List<Genre> genres;
     private String trailerUrl;
-
-    // Credits (cast and director)
     private Credits credits;
 
-    // Getters
+
     public int getId() {
         return id;
     }
@@ -62,7 +59,6 @@ public class MovieDetail {
         return credits;
     }
 
-    // Setters (for Gson)
     public void setId(int id) {
         this.id = id;
     }
@@ -99,9 +95,7 @@ public class MovieDetail {
         this.credits = credits;
     }
 
-    /**
-     * Inner class for Genre
-     */
+    // inner class for Genre
     public static class Genre {
         private int id;
         private String name;
@@ -130,9 +124,8 @@ public class MovieDetail {
         }
     }
 
-    /**
-     * Inner class for Credits (cast and crew)
-     */
+
+    // inner class for Credits
     public static class Credits {
         private List<Cast> cast;
         private List<Crew> crew;
@@ -161,9 +154,8 @@ public class MovieDetail {
         }
     }
 
-    /**
-     * Inner class for Cast member
-     */
+
+    // inner class for Cast member
     public static class Cast {
         private int id;
         private String name;
@@ -202,9 +194,7 @@ public class MovieDetail {
         }
     }
 
-    /**
-     * Inner class for Crew member (director, etc)
-     */
+    // niner class for crew member
     public static class Crew {
         private int id;
         private String name;
@@ -243,9 +233,8 @@ public class MovieDetail {
         }
     }
 
-    /**
-     * Inner class for Videos/Trailer
-     */
+
+    // inner class for videos/trailer
     public static class Video {
         private String key;
         private String type;
@@ -284,9 +273,8 @@ public class MovieDetail {
         }
     }
 
-    /**
-     * Inner class for Videos response
-     */
+
+    // inner class for Videos response
     public static class VideosResponse {
         private List<Video> results;
 

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class ApiConfig {
+
     private static final String CONFIG_FILE = "config.properties";
     private static final String TOKEN_KEY = "TMDB_ACCESS_TOKEN";
 
@@ -38,7 +39,6 @@ public class ApiConfig {
                                 "   Add: TMDB_ACCESS_TOKEN=your_token_here"
                 );
             }
-
             return token;
 
         } catch (IOException e) {

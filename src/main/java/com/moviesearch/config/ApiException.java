@@ -1,8 +1,6 @@
 package com.moviesearch.config;
 
-/**
- * Custom exception for API-related errors
- */
+
 public class ApiException extends Exception {
 
     private int statusCode;

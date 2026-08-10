@@ -27,17 +27,9 @@ public class TmdbService {
         this.httpClient = HttpClient.newHttpClient();
     }
 
-    /**
-     * Search for movies by title
-     *
-     * @param query Movie title to search (e.g., "batman")
-     * @param page Page number (1-10)
-     * @return Raw JSON response from TMDB API
-     * @throws ApiException if API call fails
-     */
+    // search movie by enter title
     public String searchMovies(String query, int page) throws ApiException {
         try {
-            // Validate input
             if (query == null || query.trim().isEmpty()) {
                 throw new ApiException("Movie title cannot be empty");
             }
@@ -46,81 +38,71 @@ public class TmdbService {
                 throw new ApiException("Page number must be between 1 and 10");
             }
 
-            // Build the URL
+            // build the URL
             String url = BASE_URL + SEARCH_MOVIE_ENDPOINT
                     + "?query=" + encodeUrl(query)
                     + "&page=" + page;
 
-            // Create HTTP request with authorization header
+            // create HTTP request
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
                     .header("Authorization", "Bearer " + apiConfig.getAccessToken())
                     .GET()
                     .build();
 
-            // Send request and get response
+            // send the request and get response
             HttpResponse<String> response = httpClient.send(
                     request,
                     HttpResponse.BodyHandlers.ofString()
             );
 
-            // Handle different status codes
+            // handle different status codes
             int statusCode = response.statusCode();
 
             switch (statusCode) {
                 case 200:
-                    // Success
                     return response.body();
 
                 case 401:
                     throw new ApiException(
-                            "Authentication failed: Invalid or expired API token",
-                            401
+                            "Authentication failed: Invalid or expired API token", 401
                     );
 
                 case 404:
                     throw new ApiException(
-                            "TMDB API endpoint not found",
-                            404
+                            "TMDB API endpoint not found", 404
                     );
 
                 case 429:
                     throw new ApiException(
-                            "Too many requests: Rate limit exceeded. Wait a moment and try again.",
-                            429
+                            "Too many requests: Rate limit exceeded. Wait a moment and try again.", 429
                     );
-
                 case 500:
                 case 502:
                 case 503:
                     throw new ApiException(
-                            "TMDB server error: Please try again later",
-                            statusCode
+                            "TMDB server error: Please try again later", statusCode
                     );
 
                 default:
                     throw new ApiException(
-                            "API Error " + statusCode + ": " + response.body(),
-                            statusCode
+                            "API Error " + statusCode + ": " + response.body(), statusCode
                     );
             }
 
         } catch (java.net.ConnectException e) {
             throw new ApiException(
-                    "Network error: Cannot connect to TMDB. Check your internet connection.",
-                    e
+                    "Network error: Cannot connect to TMDB. Check your internet connection.", e
             );
         } catch (java.net.SocketTimeoutException e) {
             throw new ApiException(
-                    "Connection timeout: TMDB server is slow or unreachable.",
-                    e
+                    "Connection timeout: TMDB server is slow or unreachable.", e
             );
         } catch (ApiException e) {
-            throw e;  // Re-throw our custom exceptions
+            throw e;
         } catch (Exception e) {
             throw new ApiException(
-                    "Unexpected error: " + e.getMessage(),
-                    e
+                    "Unexpected error: " + e.getMessage(), e
             );
         }
     }
@@ -129,13 +111,7 @@ public class TmdbService {
         return text.replace(" ", "%20");
     }
 
-    /**
-     * Parse JSON response into SearchResponse object
-     *
-     * @param jsonResponse Raw JSON string from TMDB
-     * @return SearchResponse object with parsed data
-     * @throws ApiException if parsing fails
-     */
+   // parse json response to object
     public SearchResponse parseSearchResponse(String jsonResponse) throws ApiException {
         try {
             if (jsonResponse == null || jsonResponse.isEmpty()) {
@@ -149,7 +125,7 @@ public class TmdbService {
                 throw new ApiException("Failed to parse search response");
             }
 
-            // Validate parsed data
+            // validate parsed of data
             if (response.getResults() == null) {
                 throw new ApiException("Invalid response structure: missing results");
             }
@@ -165,13 +141,7 @@ public class TmdbService {
         }
     }
 
-    /**
-     * Get detailed movie information by ID
-     *
-     * @param movieId Movie ID
-     * @return Raw JSON response
-     * @throws ApiException if API call fails
-     */
+    // get detail by ID
     public String getMovieDetail(int movieId) throws ApiException {
         try {
             if (movieId <= 0) {
@@ -179,7 +149,7 @@ public class TmdbService {
             }
 
             String url = BASE_URL + "/movie/" + movieId
-                    + "?append_to_response=videos,credits";
+                    + "append_to_response=videos,credits";
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))
@@ -215,13 +185,7 @@ public class TmdbService {
         }
     }
 
-    /**
-     * Parse movie detail JSON response
-     *
-     * @param jsonResponse Raw JSON from API
-     * @return MovieDetail object
-     * @throws ApiException if parsing fails
-     */
+    // parse movie detail by Json response
     public MovieDetail parseMovieDetail(String jsonResponse) throws ApiException {
         try {
             if (jsonResponse == null || jsonResponse.isEmpty()) {
@@ -235,7 +199,7 @@ public class TmdbService {
                 throw new ApiException("Failed to parse movie details");
             }
 
-            // Extract trailer URL from videos
+            // extract trailer URL from videos
             detail.setTrailerUrl(extractTrailerUrl(jsonResponse));
 
             return detail;
@@ -249,9 +213,7 @@ public class TmdbService {
         }
     }
 
-    /**
-     * Extract trailer URL from videos JSON
-     */
+   // extract URL
     private String extractTrailerUrl(String jsonResponse) {
         try {
             Gson gson = new Gson();
@@ -268,7 +230,7 @@ public class TmdbService {
                 return null;
             }
 
-            // Look for YouTube trailer
+            // look for YouTube trailer
             for (int i = 0; i < results.size(); i++) {
                 com.google.gson.JsonObject video = results.get(i).getAsJsonObject();
 
@@ -288,13 +250,7 @@ public class TmdbService {
         }
     }
 
-    /**
-     * Get the trailer URL for a specific movie
-     * Fetches video data and extracts YouTube trailer link
-     *
-     * @param movieId Movie ID
-     * @return YouTube trailer URL, or null if not found
-     */
+    // get URl trailer
     public String getMovieTrailer(int movieId) {
         try {
             String url = BASE_URL + "/movie/" + movieId + "/videos";
@@ -321,9 +277,8 @@ public class TmdbService {
         }
     }
 
-    /**
-     * Extract YouTube trailer URL from videos JSON response
-     */
+
+     // extract YouTube trailer URL from videos JSON response
     private String extractTrailerFromVideos(String jsonResponse) {
         try {
             Gson gson = new Gson();
@@ -355,12 +310,7 @@ public class TmdbService {
         }
     }
 
-    /**
-     * Fetch and attach trailer URLs to all movies in search results
-     * Note: This makes additional API calls (one per movie)
-     *
-     * @param response SearchResponse with movies
-     */
+    // Fetch and attach trailer URLs to all movies in search results
     public void attachTrailersToMovies(SearchResponse response) {
         if (response == null || response.getResults() == null) {
             return;
@@ -369,7 +319,7 @@ public class TmdbService {
         System.out.print(" Fetching trailers");
 
         for (MovieSummary movie : response.getResults()) {
-            System.out.print(".");  // Progress indicator
+            System.out.print(".");
             String trailerUrl = getMovieTrailer(movie.getId());
             movie.setTrailerUrl(trailerUrl);
         }

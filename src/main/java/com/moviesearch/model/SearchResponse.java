@@ -3,10 +3,8 @@ package com.moviesearch.model;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
-/**
- * Represents the complete response from TMDB search API
- * Gson will automatically map JSON fields to these properties
- */
+// represents the complete response from TMDB search API
+
 public class SearchResponse {
 
     private int page;
@@ -18,7 +16,7 @@ public class SearchResponse {
     @SerializedName("total_results")
     private int totalResults;
 
-    // Constructors
+    // constructors
     public SearchResponse() {}
 
     public SearchResponse(int page, List<MovieSummary> results,
@@ -29,7 +27,6 @@ public class SearchResponse {
         this.totalResults = totalResults;
     }
 
-    // Getters
     public int getPage() {
         return page;
     }
@@ -46,7 +43,6 @@ public class SearchResponse {
         return totalResults;
     }
 
-    // Setters (for Gson)
     public void setPage(int page) {
         this.page = page;
     }
